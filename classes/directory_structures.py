@@ -16,7 +16,8 @@ class DirectoryObject(Node):
     """
     def __init__(self, tag, identifier=None,
                  expanded=True, data=None):
-        super().__init__(self, tag=tag, identifier=identifier,
+        print(f"DirectoryObject: tag: {tag}.")
+        super().__init__(tag=tag, identifier=identifier,
                          expanded=expanded, data=data)
 
         if not (os.path.exists(self.tag) and os.path.isdir(self.tag)):
@@ -43,7 +44,8 @@ class FileObject(Node):
     """
     def __init__(self, tag, identifier=None,
                  expanded=True, data=None):
-        super().__init__(self, tag=tag, identifier=identifier,
+        print(f"FileObject: tag: {tag}.")
+        super().__init__(tag=tag, identifier=identifier,
                          expanded=expanded, data=data)
         if os.path.exists(self.tag) and os.path.isfile(self.tag):
             self.file_hash = file_hash(self.tag)
