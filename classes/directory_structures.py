@@ -13,7 +13,6 @@ class DirectoryObject(Node):
 
     Only a Directory Node will allow other Nodes to be added to it.
     """
-    pass
 
 
 class FileObject(Node):
