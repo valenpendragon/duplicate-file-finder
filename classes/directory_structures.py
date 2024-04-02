@@ -31,7 +31,8 @@ class DirectoryObject(Node):
         data = os.path.dirname(tag)
         print(f"FileObject: data: {data}")
 
-        super().__init__(tag=tag, identifier=identifier,
+        super().__init__(tag=os.path.basename(tag),
+                         identifier=identifier,
                          expanded=expanded, data=data)
 
 
@@ -67,5 +68,6 @@ class FileObject(Node):
         data = os.path.dirname(tag)
         print(f"FileObject: data: {data}")
 
-        super().__init__(tag=tag, identifier=identifier,
+        super().__init__(tag=os.path.basename(tag),
+                         identifier=identifier,
                          expanded=expanded, data=data)
