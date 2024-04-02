@@ -13,16 +13,26 @@ class DirectoryObject(Node):
     children.
 
     Only a Directory Node will allow other Nodes to be added to it.
+
+    Unlike Node, tag is a required parameter. It is the name of the
+    directory. The path-to-directory will be stored in data. Also
+    unlike Node, data cannot be specified as a parameter.
+    :param tag: str (filepath)
+    :param identifier: unique key, usually assigned by the parent
+        class to the actual system identifier in memory.
+    :param expanded: bool, defaults to True
     """
     def __init__(self, tag, identifier=None,
                  expanded=True, data=None):
-        print(f"DirectoryObject: tag: {tag}.")
+        print(f"DirectoryObject: tag: {tag}")
+        if not (os.path.exists(tag) and os.path.isdir(tag)):
+            error_msg = f"{tag} must be an actual directory."
+            raise TypeError(error_msg)
+        data = os.path.dirname(tag)
+        print(f"FileObject: data: {data}")
+
         super().__init__(tag=tag, identifier=identifier,
                          expanded=expanded, data=data)
-
-        if not (os.path.exists(self.tag) and os.path.isdir(self.tag)):
-            error_msg = f"{self.tag} must be an actual directory."
-            raise TypeError(error_msg)
 
 
 class FileObject(Node):
@@ -35,20 +45,27 @@ class FileObject(Node):
     Tree.leaves() does not differentiate between empty directories and
     files.
 
-    Unlike Node, tag is a required parameter.
+    Unlike Node, tag is a required parameter. It is the filename for
+    actual file. The directory it is stored in will stored in data.
+    Also unlike Node, data cannot be specified as a parameter.
 
     DirectoryTree will have an override parameter which will not
     allow another Node-based object to be connected to a FileObject.
 
-    :param tag: str, filepath
+    :param tag: str (filepath)
+    :param identifier: unique key, usually assigned by the parent
+        class to the actual system identifier in memory.
+    :param expanded: bool, defaults to True
     """
-    def __init__(self, tag, identifier=None,
-                 expanded=True, data=None):
-        print(f"FileObject: tag: {tag}.")
+    def __init__(self, tag, identifier=None, expanded=True):
+        print(f"FileObject: tag: {tag}")
+        if os.path.exists(tag) and os.path.isfile(tag):
+            self.file_hash = file_hash(tag)
+        else:
+            error_msg = f"{tag} must be an actual file."
+            raise TypeError(error_msg)
+        data = os.path.dirname(tag)
+        print(f"FileObject: data: {data}")
+
         super().__init__(tag=tag, identifier=identifier,
                          expanded=expanded, data=data)
-        if os.path.exists(self.tag) and os.path.isfile(self.tag):
-            self.file_hash = file_hash(self.tag)
-        else:
-            error_msg = f"{self.tag} must be an actual file."
-            raise TypeError(error_msg)
