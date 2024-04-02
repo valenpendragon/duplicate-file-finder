@@ -71,3 +71,45 @@ class FileObject(Node):
         super().__init__(tag=os.path.basename(tag),
                          identifier=identifier,
                          expanded=expanded, data=data)
+
+
+class DirectoryTree(Tree):
+    """
+    This class allows us to create a directory tree with built-in
+    validation. DirectoryObject and FileObject ensure that directories
+    and files are assigned to the correct objects, but they cannot
+    determine if a FileObject or a DirectoryObject are contained in an
+    existing DirectoryObject in the tree before adding it to the node.
+    This class can look at an existing nodes data to see if contains
+    the new using its filepath.
+
+    DirectoryObject and FileObject exist to allows the leaves() method
+    to produce a list of objects that can be differentiated as files
+    or empty directories.
+
+    This class differs from the original in that node_class will be
+    set to 'directory tree'. This ensure that tree adds must be the
+    same type before pasting. The bool, deep, is automatically set to
+    True, since directory structures should be deep copied to avoid
+    errors. Only tree is an optional str value.
+    """
+    def __init__(self, tree=None):
+        """
+        The only unset parameter, tree, is an optional str indicating
+        the unique identifier of a existing Tree object. deep is set
+        to True to ensure that deep copies are made and stored.
+        node_class is set to 'directory tree' to ensure that only
+        other DirectoryTree objects are allows to paste to or be
+        copied into this new object.
+
+        :param tree: str or None, optional
+        """
+        deep = True
+        node_class = 'directory tree'
+        if tree is not None:
+            if not isinstance(tree, DirectoryTree):
+                error_msg = (f"DirectoryTree: {tree} must be "
+                             f"DirectoryTree type.")
+                raise TypeError(error_msg)
+        super().__init__(tree=tree, deep=deep, node_class=None)
+        self.node_class = node_class
