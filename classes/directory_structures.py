@@ -4,6 +4,14 @@ import os
 import pathlib
 
 
+class MultipleRootError(Exception):
+    pass
+
+
+class DuplicateNodeIdError(Exception):
+    pass
+
+
 class DirectoryObject(Node):
     """
     This class allows us to differentiate between a file node and a
@@ -27,7 +35,7 @@ class DirectoryObject(Node):
         print(f"DirectoryObject: tag: {tag}")
         if not (os.path.exists(tag) and os.path.isdir(tag)):
             error_msg = f"{tag} must be an actual directory."
-            raise TypeError(error_msg)
+            raise OSError(error_msg)
         data = os.path.dirname(tag)
         print(f"FileObject: data: {data}")
 
@@ -64,7 +72,7 @@ class FileObject(Node):
             self.file_hash = file_hash(tag)
         else:
             error_msg = f"{tag} must be an actual file."
-            raise TypeError(error_msg)
+            raise OSError(error_msg)
         data = os.path.dirname(tag)
         print(f"FileObject: data: {data}")
 
@@ -92,6 +100,15 @@ class DirectoryTree(Tree):
     same type before pasting. The bool, deep, is automatically set to
     True, since directory structures should be deep copied to avoid
     errors. Only tree is an optional str value.
+
+    The __init__ method needs to force the node_class attribute to
+    the value 'directory tree'. That will keep it from adding nodes for
+    trees that are not files or directories. However, the add_node needs
+    to be altered to check for DirectoryObject and FileObject nodes.
+    This class cannot use inheritance for this method.
+
+    The create_node method needs an additional parameter to ensure
+    that the correct type of node is created (directory or file).
     """
     def __init__(self, tree=None):
         """
@@ -113,3 +130,69 @@ class DirectoryTree(Tree):
                 raise TypeError(error_msg)
         super().__init__(tree=tree, deep=deep, node_class=None)
         self.node_class = node_class
+
+    def add_node(self, node, parent=None):
+        """
+        This method adds a new node to the DirectoryTree. The node_class
+        must be either DirectoryObject or FileObject. If the tree is
+        empty, the new node must be DirectoryObject type. If the tree
+        is not empty, then the parent must be DirectoryObject type.
+        :param node: instance of Class::Node
+        :param parent: instance of Class::Node that will contain the
+            new node, default to None (adding a root node)
+        :return: None, all changes within the tree object
+        """
+        # The node_class is 'directory tree'. In practical terms, that
+        # means that nodes can have two types: DirectoryObject and
+        # FileObject. This is why we could not use the original method
+        # which checks node_class for a single type.
+        if not (isinstance(node, DirectoryObject)
+                or isinstance(node, FileObject)):
+            error_msg = (f"DirectoryTree: node must be one of the following "
+                         f"types derived from Class::Node - DirectoryObject "
+                         f"or FileObject.")
+            raise OSError(error_msg)
+
+        # Node identifiers cannot appear more than once in a tree.
+        if node.identifier in self.nodes:
+            error_msg = (f"DirectoryTree: Node, {node} has a Node ID, "
+                         f"{node.identifier}, which already appears in "
+                         f"this tree.")
+            raise DuplicateNodeIdError(error_msg)
+
+        # We have to verity that new root is a DirectoryObject
+        # before adding it as root. We also need to make sure that
+        # more than root is not being added.
+        if parent is None:
+            if self.root is not None:
+                error_msg = (f"DirectoryTree: {self.root} has already been set"
+                             f"as root. Tree objects cannot have multiple"
+                             f"roots.")
+                raise MultipleRootError(error_msg)
+            else:
+                if not isinstance(node, DirectoryObject):
+                    error_msg = (f"DirectoryTree: Node {node} is "
+                                 f"type {type(node)}. A root node "
+                                 f"must be type DirectoryObject.")
+                    TypeError(error_msg)
+                else:
+                    self.root = node.identifier
+
+        else:
+            # Parent must be a directory object to contain other
+            # nodes.
+            if not isinstance(parent, DirectoryObject):
+                error_msg = (f"DirectoryTree: Parent node, {parent}, "
+                             f"is type {type(parent)}. In directory"
+                             f"trees, only DirectoryObjects can"
+                             f"contain other objects.")
+                raise OSError(error_msg)
+            else:
+                parent = Node.sanitize_id(parent)
+
+        self.nodes.update({node.identifier: node})
+        self.__update_fpointer(parent, node.identifier, Node.ADD)
+        node.bpointer = parent
+
+
+
