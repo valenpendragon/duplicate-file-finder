@@ -1,3 +1,3 @@
-"""Top level package for RP Tree CLI package."""
+"""Top level package for RP Tree package."""
 
 __version__ = '0.1.0'
