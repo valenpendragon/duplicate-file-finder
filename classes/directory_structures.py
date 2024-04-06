@@ -109,6 +109,7 @@ class DirectoryTree(Tree):
 
     The create_node method needs an additional parameter to ensure
     that the correct type of node is created (directory or file).
+
     """
     def __init__(self, tree=None):
         """
@@ -194,5 +195,36 @@ class DirectoryTree(Tree):
         self.__update_fpointer(parent, node.identifier, Node.ADD)
         node.bpointer = parent
 
+    def create_node(self, tag, node_type,
+                    identifier=None, parent=None):
+        """
+        This method creates a child node inside the parent.
 
+        We cannot use inheritance here, either. The extra type
+        parameter is needed since we are using subclasses of Node.
+        The original parameter is overridden with the actual type
+        string for this new node.
 
+        As with the add_node method, the parent node must be of
+        type DirectoryObject. add_node does most of the required
+        type checks when it is called from this method.
+
+        :param node_type: str, 'directory' or 'file' are valid
+            contents, it cannot be blank
+        :param tag: str, filename or directory name
+        :param identifier: unique identifier, usually generated
+        :param parent: identifier of parent node
+        :return: Class::Node, either DirectoryObject or FileObject
+        """
+        if node_type == "directory":
+            node = DirectoryObject(tag, identifier)
+        elif node_type == "file":
+            node = FileObject(tag, identifier)
+        else:
+            error_msg = (f"DirectoryTree: Invalid argument "
+                         f"{node_type}. Node type must be either "
+                         f"'directory' or 'file'.")
+            raise ValueError(error_msg)
+
+        self.add_node(node, parent)
+        return node
