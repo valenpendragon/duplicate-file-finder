@@ -39,6 +39,7 @@ class DirectoryTree:
             self._diagram_generator = _TreeDiagramGenerator(root_dir)
             self.tree = []
             self.root_dir = root_dir
+            self.hash_type = hash_type
             root = DirectoryObject(name=root_dir, parent=None)
             self.tree.append(root)
 
@@ -73,8 +74,36 @@ class _TreeDiagramGenerator:
         return self._tree
 
     def _tree_head(self):
+        """
+        This method creates the header of the diagram. All actions take place
+        on the diagram itself.
+        :return: None
+        """
         self._tree.append(f"{self._root_dir}{os.sep}")
         self._tree.append(PIPE)
 
-    def _tree_body(self, root_dir):
+    def _tree_body(self, directory, prefix=""):
+        """
+        This method creates the body of the diagram. All action takes place
+        on the object itself. directory is a required argument and is the
+        directory that this method will traverse.
+        :param directory: str, directory name
+        :param prefix: str, allows the addition of spacers to the program.
+        :return: None
+        """
+        entries = directory.iterdir()
+        entries = sorted(entries, key=lambda entry: entry.is_file())
+        entries_count = len(entries)
+        for idx, entry in enumerate(entries):
+            connector = ELBOW if idx == entries_count - 1 else TEE
+            if entry.is_dir():
+                self._add_directory(entry, idx, entries_count, prefix,
+                                    connector)
+            else:
+                self._add_file(entry, prefix, connector)
+
+    def _add_directory(self, entry, idx, count, prefix, connector):
+        pass
+
+    def _add_file(self, entry, prefix, connector):
         pass
