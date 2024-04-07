@@ -1,5 +1,5 @@
 """Top-level package for functions required for duplicate-file-finder."""
 
-__version__ = '0.3.0'
+__version__ = '0.4.0'
 
-from .file_functions import file_hash, FileObject
+from .file_functions import file_hash, FileObject, DirectoryObject

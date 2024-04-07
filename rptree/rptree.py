@@ -2,6 +2,7 @@
 
 import os
 import pathlib
+from functions import FileObject, DirectoryObject, file_hash
 
 PIPE = "│"
 ELBOW = "└──"
@@ -11,18 +12,39 @@ SPACE_PREFIX = "    "
 
 
 class DirectoryTree:
-    def __init__(self, root_dir):
+    def __init__(self, root_dir, hash_type='sha256'):
         """
         This method requires the filepath to the root directory where the
         DirectoryTree will begin. This is a required parameter, but it
         may be a relative path instead of an absolute path.
+
+        Parameter, hash_type, is the type of hash to perform on items found
+        in the directory.
+
         :param root_dir: str of a filepath
+        :param hash_type: str, name of the hash algorithm to use to build
+            the hash list of all files in the directory, defaults to 'sha256'.
         """
-        self._generator = _TreeDiagramGenerator(root_dir)
+        # Make sure root_dir is a directory and it exists.
+        if not os.path.exists(root_dir):
+            error_msg = (f"DirectoryTree.__init__(): root_dir, {root_dir}, "
+                         f"does not exist.")
+            raise OSError(error_msg)
+        elif not os.path.isdir(root_dir):
+            error_msg = (f"DirectoryTree.__init__(): root_dir, {root_dir}, is "
+                         f"not a directory. Only an actual directory is"
+                         f"acceptable.")
+            raise OSError(error_msg)
+        else:
+            self._diagram_generator = _TreeDiagramGenerator(root_dir)
+            self.tree = []
+            self.root_dir = root_dir
+            root = DirectoryObject(name=root_dir, parent=None)
+            self.tree.append(root)
 
     def generate(self):
         """This method prints out the directory tree to STDIO"""
-        tree = self._generator.build_tree()
+        tree = self._diagram_generator.build_tree()
         for entry in tree:
             print(entry)
 

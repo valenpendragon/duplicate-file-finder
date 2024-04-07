@@ -6,6 +6,8 @@ from collections import namedtuple
 
 FileObject = namedtuple('File_Object',
                         ['name', 'parent', 'hash', 'hash_type'])
+DirectoryObject = namedtuple('DirectoryObject',
+                             ['name', 'parent'])
 
 
 def file_hash(filename, algorithm='sha256'):
