@@ -18,7 +18,7 @@ class DirectoryTree:
         may be a relative path instead of an absolute path.
         :param root_dir: str of a filepath
         """
-        self._generator = _TreeGenerator(root_dir)
+        self._generator = _TreeDiagramGenerator(root_dir)
 
     def generate(self):
         """This method prints out the directory tree to STDIO"""
@@ -27,7 +27,7 @@ class DirectoryTree:
             print(entry)
 
 
-class _TreeGenerator:
+class _TreeDiagramGenerator:
     def __init__(self, root_dir):
         """
         This method requires the filepath to the root directory where the
