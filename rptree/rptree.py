@@ -102,8 +102,37 @@ class _TreeDiagramGenerator:
             else:
                 self._add_file(entry, prefix, connector)
 
-    def _add_directory(self, entry, idx, count, prefix, connector):
-        pass
+    def _add_directory(self, directory, idx: int, count: int,
+                       prefix: str, connector: str):
+        """
+        This method recursively traverses the tree below directory by calling
+        _tree_body again..
+        :param directory: filepath of this directory to be added
+        :param idx: int, current index of this director in its parent
+            directory
+        :param count: int: total number of entries in its parent directory
+        :param prefix: str: the graphical string to prepend before the
+            connector string when displaying this directory in its parent
+        :param connector: str: the graphical string to prepend when connecting
+            it to its parent directory
+        :return: None, all action takes place internally
+        """
+        self._tree.append(f"{prefix}{connector} {directory.name}{os.sep}")
+        if idx != count - 1:
+            prefix += PIPE_PREFIX
+        else:
+            prefix += SPACE_PREFIX
+        self._tree_body(directory=directory, prefix=prefix)
 
-    def _add_file(self, entry, prefix, connector):
-        pass
+    def _add_file(self, file_entry, prefix, connector):
+        """
+        This method adds the filename to the directory tree structure and
+        diagram.
+        :param file_entry: relative filepath to this file
+        :param prefix: str, graphical representation of the spacing to the
+            connector to the file's parent directory
+        :param connector: str, graphical representation of the connection to
+            the file's parent directory
+        :return: None, all action takes place internally
+        """
+        self._tree.append(f"{prefix}{connector} {file_entry.name}")
