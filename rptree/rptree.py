@@ -72,7 +72,7 @@ class DirectoryTree:
                     self._file_type = 'txt'
             else:
                 self._file_type = None
-            # print(self)
+            print(self)
 
     def __str__(self):
         s = (f"DirectoryTree: \n"
@@ -98,14 +98,13 @@ class DirectoryTree:
                 tree.append("```")
                 output_stream = open(self._output_file, mode='w', encoding='UTF-8')
             else:
-                # Text file will be assumed.
-                output_stream = open(self._output_file, mode='w', encoding='ascii')
+                # Text file will be assumed. No wrapper is required.
+                output_stream = open(self._output_file, mode='w', encoding='UTF-8')
         else:
             output_stream = sys.stdout
         with output_stream as stream:
             for entry in tree:
                 print(entry, file=stream)
-        print(entry)
 
 
 class _TreeDiagramGenerator:
@@ -132,7 +131,7 @@ class _TreeDiagramGenerator:
         self._suppress_hash = suppress_hash
         self._verbose = verbose
         self._tree = []
-        # print(self)
+        print(self)
 
     def __str__(self):
         s = (f"_TreeDiagramGenerator:\n"
@@ -140,7 +139,7 @@ class _TreeDiagramGenerator:
              f"_hash_type: {self._hash_type}. _suppress_hash: {self._suppress_hash}\n"
              f"_verbose: {self._verbose}.\n"
              f"_tree: {self._tree}\n"
-             f"End of TreeDiagramGenerator")
+             f"End of _TreeDiagramGenerator")
         return s
 
     def build_tree(self):
@@ -216,7 +215,7 @@ class _TreeDiagramGenerator:
         :return: None, all action takes place internally
         """
         if self._verbose:
-            print(f"_TreeDiagramGenerator._add_directory: Working on {directory}.")
+            print(f"_TreeDiagramGenerator._add_directory: Working on directory, {directory}.")
         self._tree.append(f"{prefix}{connector} {directory.name}{os.sep}")
         if idx != count - 1:
             prefix += PIPE_PREFIX
