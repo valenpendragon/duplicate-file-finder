@@ -51,7 +51,7 @@ class DirectoryTree:
 
 
 class _TreeDiagramGenerator:
-    def __init__(self, root_dir):
+    def __init__(self, root_dir, dir_only=False):
         """
         This method requires the filepath to the root directory where the
         _TreeGenerator will begin. This is x required parameter, but it
@@ -60,6 +60,7 @@ class _TreeDiagramGenerator:
         :param root_dir: str of x filepath
         """
         self._root_dir = pathlib.Path(root_dir)
+        self._dir_only = dir_only
         self._tree = []
 
     def build_tree(self):
