@@ -4,6 +4,7 @@ import sys
 
 from . import __version__
 from .rptree import DirectoryTree
+from functions import file_hash
 
 
 def parse_cmd_line_arguments():
@@ -28,6 +29,14 @@ def parse_cmd_line_arguments():
         action="store_true",
         help="Generator directory-only tree."
     )
+    parser.add_argument(
+        "-t",
+        "--hash-type",
+        action="store",
+        default='sha256',
+        choices=['sha224', 'sha256', 'sha384', 'sha512',
+                 'sha3_224', 'sha3_256', 'sha3_384', 'sha3_512']
+    )
     return parser.parse_args()
 
 
@@ -39,5 +48,6 @@ def main():
                      f"a directory. ROOT_DIR must be a directory.")
         print(error_msg)
         sys.exit()
-    tree = DirectoryTree(root_dir, dir_only=args.dir_only)
+    print(f"rptree cli: args: {args}")
+    tree = DirectoryTree(root_dir, dir_only=args.dir_only, hash_type=args.hash_type)
     tree.generate()

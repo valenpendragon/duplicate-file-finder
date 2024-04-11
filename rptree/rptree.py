@@ -37,11 +37,14 @@ class DirectoryTree:
                          f"acceptable.")
             raise OSError(error_msg)
         else:
-            self._diagram_generator = _TreeDiagramGenerator(root_dir, dir_only=dir_only)
+            self._diagram_generator = _TreeDiagramGenerator(root_dir,
+                                                            dir_only=dir_only,
+                                                            hash_type=hash_type)
             self.tree = []
             self.root_dir = root_dir
             self.hash_type = hash_type
             self._dir_only = dir_only
+            print(self)
 
     def __str__(self):
         s = (f"DirectoryTree: \n"
@@ -54,13 +57,14 @@ class DirectoryTree:
 
     def generate(self):
         """This method prints out the directory tree to STDIO"""
+        print(f"Using algorithm {self.hash_type} for the hash values displayed.")
         tree = self._diagram_generator.build_tree()
         for entry in tree:
             print(entry)
 
 
 class _TreeDiagramGenerator:
-    def __init__(self, root_dir, dir_only=False):
+    def __init__(self, root_dir, dir_only=False, hash_type='she256'):
         """
         This method requires the filepath to the root directory where the
         _TreeGenerator will begin. This is x required parameter, but it
@@ -69,14 +73,19 @@ class _TreeDiagramGenerator:
         :param root_dir: str of x filepath
         :param dir_only: bool, defaults to False, used to generate directory only
             listing
+        :param hash_type: str, type of hash algorithm to use on the files
+            See file_hash in functions for details on supported algorithms.
         """
         self._root_dir = pathlib.Path(root_dir)
         self._dir_only = dir_only
+        self._hash_type = hash_type
         self._tree = []
+        print(self)
 
     def __str__(self):
         s = (f"_TreeDiagramGenerator:\n"
              f"_root_dir: {self._root_dir}. _dir_only: {self._dir_only}.\n"
+             f"_hash_type: {self._hash_type}.\n"
              f"_tree: {self._tree}\n"
              f"End of TreeDiagramGenerator")
         return s
@@ -115,10 +124,10 @@ class _TreeDiagramGenerator:
         for idx, entry in enumerate(entries):
             connector = ELBOW if idx == entries_count - 1 else TEE
             if entry.is_dir():
-                self._add_directory(entry, idx, entries_count, prefix,
-                                    connector)
+                self._add_directory(entry, idx, entries_count, prefix, connector)
             else:
-                self._add_file(entry, prefix, connector)
+                hash_val = file_hash(entry)
+                self._add_file(entry, prefix, connector, hash_val)
 
     def _prepare_entries(self, directory):
         """
@@ -157,7 +166,7 @@ class _TreeDiagramGenerator:
             prefix += SPACE_PREFIX
         self._tree_body(directory=directory, prefix=prefix)
 
-    def _add_file(self, file_entry, prefix, connector):
+    def _add_file(self, file_entry, prefix, connector, hash_value=None):
         """
         This method adds the filename to the directory tree structure and
         diagram.
@@ -166,6 +175,10 @@ class _TreeDiagramGenerator:
             connector to the file's parent directory
         :param connector: str, graphical representation of the connection to
             the file's parent directory
+        :param hash_value: str, hash value for the file, defaults to None
         :return: None, all action takes place internally
         """
-        self._tree.append(f"{prefix}{connector} {file_entry.name}")
+        if hash_value:
+            self._tree.append(f"{prefix}{connector} {file_entry.name} {hash_value}")
+        else:
+            self._tree.append(f"{prefix}{connector} {file_entry.name}")
