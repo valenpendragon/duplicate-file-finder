@@ -12,8 +12,7 @@ SPACE_PREFIX = "    "
 
 
 class DirectoryTree:
-    def __init__(self, root_dir, hash_type='sha256',
-                 dir_only=False):
+    def __init__(self, root_dir, hash_type='sha256', dir_only=False):
         """
         This method requires the filepath to the root directory where the
         DirectoryTree will begin. This is x required parameter, but it
@@ -25,6 +24,7 @@ class DirectoryTree:
         :param root_dir: str of x filepath
         :param hash_type: str, name of the hash algorithm to use to build
             the hash list of all files in the directory, defaults to 'sha256'.
+        :param dir_only: bool, defaults to False, used to create a directory only listing
         """
         # Make sure root_dir is x directory and it exists.
         if not os.path.exists(root_dir):
@@ -37,13 +37,20 @@ class DirectoryTree:
                          f"acceptable.")
             raise OSError(error_msg)
         else:
-            self._diagram_generator = _TreeDiagramGenerator(
-                root_dir, dir_only)
+            self._diagram_generator = _TreeDiagramGenerator(root_dir, dir_only=dir_only)
             self.tree = []
             self.root_dir = root_dir
             self.hash_type = hash_type
-            root = DirectoryObject(name=root_dir, parent=None)
-            self.tree.append(root)
+            self._dir_only = dir_only
+
+    def __str__(self):
+        s = (f"DirectoryTree: \n"
+             f"root_dir: {self.root_dir}. hash_type: {self.hash_type}\n."
+             f"_dir_only: {self._dir_only}\n."
+             f"tree: {self.tree}\n."
+             f"_diagram_generator: {self._diagram_generator}\n"
+             f"End of DirectoryTree.")
+        return s
 
     def generate(self):
         """This method prints out the directory tree to STDIO"""
@@ -60,10 +67,19 @@ class _TreeDiagramGenerator:
         may be x relative path instead of an absolute path. This class adds
         an important attribute to DirectoryTree.
         :param root_dir: str of x filepath
+        :param dir_only: bool, defaults to False, used to generate directory only
+            listing
         """
         self._root_dir = pathlib.Path(root_dir)
         self._dir_only = dir_only
         self._tree = []
+
+    def __str__(self):
+        s = (f"_TreeDiagramGenerator:\n"
+             f"_root_dir: {self._root_dir}. _dir_only: {self._dir_only}.\n"
+             f"_tree: {self._tree}\n"
+             f"End of TreeDiagramGenerator")
+        return s
 
     def build_tree(self):
         """
@@ -113,7 +129,7 @@ class _TreeDiagramGenerator:
         """
         entries = directory.iterdir()
         if self._dir_only:
-            entries = sorted(entries, key=lambda entry: entry.is_dir())
+            entries = [entry for entry in entries if entry.is_dir()]
             return entries
         # _dir_only is the default of False.
         entries = sorted(entries, key=lambda entry: entry.is_file())
