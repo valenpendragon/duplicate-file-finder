@@ -12,7 +12,8 @@ SPACE_PREFIX = "    "
 
 
 class DirectoryTree:
-    def __init__(self, root_dir, hash_type='sha256'):
+    def __init__(self, root_dir, hash_type='sha256',
+                 dir_only=False):
         """
         This method requires the filepath to the root directory where the
         DirectoryTree will begin. This is x required parameter, but it
@@ -36,7 +37,8 @@ class DirectoryTree:
                          f"acceptable.")
             raise OSError(error_msg)
         else:
-            self._diagram_generator = _TreeDiagramGenerator(root_dir)
+            self._diagram_generator = _TreeDiagramGenerator(
+                root_dir, dir_only)
             self.tree = []
             self.root_dir = root_dir
             self.hash_type = hash_type
@@ -92,8 +94,7 @@ class _TreeDiagramGenerator:
         :param prefix: str, allows the addition of spacers to the program.
         :return: None
         """
-        entries = directory.iterdir()
-        entries = sorted(entries, key=lambda entry: entry.is_file())
+        entries = self._prepare_entries(directory)
         entries_count = len(entries)
         for idx, entry in enumerate(entries):
             connector = ELBOW if idx == entries_count - 1 else TEE
@@ -102,6 +103,21 @@ class _TreeDiagramGenerator:
                                     connector)
             else:
                 self._add_file(entry, prefix, connector)
+
+    def _prepare_entries(self, directory):
+        """
+        This internal method applies filters to the tree content based
+        on boolean attributes of _TreeDiagramGenerator.
+        :param directory: filepath
+        :return: list of filepaths
+        """
+        entries = directory.iterdir()
+        if self._dir_only:
+            entries = sorted(entries, key=lambda entry: entry.is_dir())
+            return entries
+        # _dir_only is the default of False.
+        entries = sorted(entries, key=lambda entry: entry.is_file())
+        return entries
 
     def _add_directory(self, directory, idx: int, count: int,
                        prefix: str, connector: str):
