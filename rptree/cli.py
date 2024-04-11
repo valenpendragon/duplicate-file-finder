@@ -29,8 +29,8 @@ def main():
     args = parse_cmd_line_arguments()
     root_dir = pathlib.Path(args.root_dir)
     if not root_dir.is_dir():
-        error_msg = (f"Argument, {args.root_dir}, does not "
-                     f"exist or is not a directory.")
+        error_msg = (f"{args.root_dir}, does not exist or is not "
+                     f"a directory. ROOT_DIR must be a directory.")
         print(error_msg)
         sys.exit()
     tree = DirectoryTree(root_dir)
