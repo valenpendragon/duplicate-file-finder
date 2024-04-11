@@ -54,7 +54,7 @@ def main():
                      f"a directory. ROOT_DIR must be a directory.")
         print(error_msg)
         sys.exit()
-    print(f"rptree cli: args: {args}")
+    # print(f"rptree cli: args: {args}")
     tree = DirectoryTree(root_dir, dir_only=args.dir_only, hash_type=args.hash_type,
                          suppress_hash=args.suppress_hash)
     tree.generate()

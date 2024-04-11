@@ -193,6 +193,6 @@ class _TreeDiagramGenerator:
         :return: None, all action takes place internally
         """
         if hash_value:
-            self._tree.append(f"{prefix}{connector} {file_entry.name} {hash_value}")
+            self._tree.append(f"{prefix}{connector} {file_entry.name}\t{hash_value}")
         else:
             self._tree.append(f"{prefix}{connector} {file_entry.name}")
