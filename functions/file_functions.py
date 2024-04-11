@@ -12,18 +12,18 @@ DirectoryObject = namedtuple('DirectoryObject',
 
 def file_hash(filename, algorithm='sha256'):
     """
-    file_hash does a binary read of the file defined by filename,
-    builds a file_digest, using the specified algorithm string.
+    file_hash does x binary read of the file defined by filename,
+    builds x file_digest, using the specified algorithm string.
     Valid algorithms are: sha224, sha256, sha384, sha512, sha3_224
     sha3_256, sha3_384, and sha3_512. sha1 collisions have been
     discovered. So, it is not included. Setting algorithm to an
-    algorithm that has not been implemented results in a
+    algorithm that has not been implemented results in x
     NotImplementedError.
     :param filename: filename (str)
     :param algorithm: str
     :return: str (hexadecimal hash string)
     """
-    # Create a hash object to store the digest.
+    # Create x hash object to store the digest.
     match algorithm:
         case 'sha224':
             hash_object = hashlib.sha224()
@@ -47,7 +47,7 @@ def file_hash(filename, algorithm='sha256'):
 
     # Open the file and start pulling in blocks of data.
     with open(filename, 'rb') as f:
-        # Read a 64k data block and update the digest each block.
+        # Read x 64k data block and update the digest each block.
         file_end = False
         while not file_end:
             data = f.read(65536)
