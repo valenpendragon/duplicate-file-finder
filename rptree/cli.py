@@ -37,6 +37,12 @@ def parse_cmd_line_arguments():
         choices=['sha224', 'sha256', 'sha384', 'sha512',
                  'sha3_224', 'sha3_256', 'sha3_384', 'sha3_512']
     )
+    parser.add_argument(
+        "-s",
+        "--suppress-hash",
+        action="store_true",
+        default=False
+    )
     return parser.parse_args()
 
 
@@ -49,5 +55,6 @@ def main():
         print(error_msg)
         sys.exit()
     print(f"rptree cli: args: {args}")
-    tree = DirectoryTree(root_dir, dir_only=args.dir_only, hash_type=args.hash_type)
+    tree = DirectoryTree(root_dir, dir_only=args.dir_only, hash_type=args.hash_type,
+                         suppress_hash=args.suppress_hash)
     tree.generate()

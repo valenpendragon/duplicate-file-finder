@@ -12,7 +12,8 @@ SPACE_PREFIX = "    "
 
 
 class DirectoryTree:
-    def __init__(self, root_dir, hash_type='sha256', dir_only=False):
+    def __init__(self, root_dir, hash_type='sha256', dir_only=False,
+                 suppress_hash=False):
         """
         This method requires the filepath to the root directory where the
         DirectoryTree will begin. This is x required parameter, but it
@@ -25,6 +26,8 @@ class DirectoryTree:
         :param hash_type: str, name of the hash algorithm to use to build
             the hash list of all files in the directory, defaults to 'sha256'.
         :param dir_only: bool, defaults to False, used to create a directory only listing
+        :param suppress_hash: bool, defaults to False, suppresses hash output in the
+            directory tree printout
         """
         # Make sure root_dir is x directory and it exists.
         if not os.path.exists(root_dir):
@@ -39,17 +42,19 @@ class DirectoryTree:
         else:
             self._diagram_generator = _TreeDiagramGenerator(root_dir,
                                                             dir_only=dir_only,
-                                                            hash_type=hash_type)
+                                                            hash_type=hash_type,
+                                                            suppress_hash=suppress_hash)
             self.tree = []
             self.root_dir = root_dir
             self.hash_type = hash_type
             self._dir_only = dir_only
-            print(self)
+            self._suppress_hash = suppress_hash
+            # print(self)
 
     def __str__(self):
         s = (f"DirectoryTree: \n"
              f"root_dir: {self.root_dir}. hash_type: {self.hash_type}\n."
-             f"_dir_only: {self._dir_only}\n."
+             f"_dir_only: {self._dir_only}. _suppress_hash: {self._suppress_hash}\n."
              f"tree: {self.tree}\n."
              f"_diagram_generator: {self._diagram_generator}\n"
              f"End of DirectoryTree.")
@@ -58,13 +63,16 @@ class DirectoryTree:
     def generate(self):
         """This method prints out the directory tree to STDIO"""
         print(f"Using algorithm {self.hash_type} for the hash values displayed.")
+        if self._suppress_hash:
+            print("Files hash output has been suppressed.")
         tree = self._diagram_generator.build_tree()
         for entry in tree:
             print(entry)
 
 
 class _TreeDiagramGenerator:
-    def __init__(self, root_dir, dir_only=False, hash_type='she256'):
+    def __init__(self, root_dir, dir_only=False, hash_type='she256',
+                 suppress_hash=False):
         """
         This method requires the filepath to the root directory where the
         _TreeGenerator will begin. This is x required parameter, but it
@@ -75,17 +83,20 @@ class _TreeDiagramGenerator:
             listing
         :param hash_type: str, type of hash algorithm to use on the files
             See file_hash in functions for details on supported algorithms.
+        :param suppress_hash: bool, defaults to False, suppresses hash output in the
+            directory tree output
         """
         self._root_dir = pathlib.Path(root_dir)
         self._dir_only = dir_only
         self._hash_type = hash_type
+        self._suppress_hash = suppress_hash
         self._tree = []
-        print(self)
+        # print(self)
 
     def __str__(self):
         s = (f"_TreeDiagramGenerator:\n"
              f"_root_dir: {self._root_dir}. _dir_only: {self._dir_only}.\n"
-             f"_hash_type: {self._hash_type}.\n"
+             f"_hash_type: {self._hash_type}. _suppress_hash: {self._suppress_hash}\n"
              f"_tree: {self._tree}\n"
              f"End of TreeDiagramGenerator")
         return s
@@ -126,7 +137,10 @@ class _TreeDiagramGenerator:
             if entry.is_dir():
                 self._add_directory(entry, idx, entries_count, prefix, connector)
             else:
-                hash_val = file_hash(entry)
+                if self._suppress_hash:
+                    hash_val = None
+                else:
+                    hash_val = file_hash(entry)
                 self._add_file(entry, prefix, connector, hash_val)
 
     def _prepare_entries(self, directory):
