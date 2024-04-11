@@ -22,6 +22,12 @@ def parse_cmd_line_arguments():
         default='.',
         help="Create a full directory tree at ROOT_DIR."
     )
+    parser.add_argument(
+        "-d",
+        "--dir_only",
+        action="store_true",
+        help="Generator directory-only tree."
+    )
     return parser.parse_args()
 
 
@@ -33,5 +39,5 @@ def main():
                      f"a directory. ROOT_DIR must be a directory.")
         print(error_msg)
         sys.exit()
-    tree = DirectoryTree(root_dir)
+    tree = DirectoryTree(root_dir, dir_only=args.dir_only)
     tree.generate()
