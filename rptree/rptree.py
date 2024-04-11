@@ -13,7 +13,7 @@ SPACE_PREFIX = "    "
 
 class DirectoryTree:
     def __init__(self, root_dir, hash_type='sha256', dir_only=False,
-                 suppress_hash=False):
+                 suppress_hash=False, verbose=False):
         """
         This method requires the filepath to the root directory where the
         DirectoryTree will begin. This is x required parameter, but it
@@ -28,6 +28,8 @@ class DirectoryTree:
         :param dir_only: bool, defaults to False, used to create a directory only listing
         :param suppress_hash: bool, defaults to False, suppresses hash output in the
             directory tree printout
+        :param verbose: bool, defaults to False, allows extra messages to appear as the
+            program performs its work
         """
         # Make sure root_dir is x directory and it exists.
         if not os.path.exists(root_dir):
@@ -43,12 +45,14 @@ class DirectoryTree:
             self._diagram_generator = _TreeDiagramGenerator(root_dir,
                                                             dir_only=dir_only,
                                                             hash_type=hash_type,
-                                                            suppress_hash=suppress_hash)
+                                                            suppress_hash=suppress_hash,
+                                                            verbose=verbose)
             self.tree = []
             self.root_dir = root_dir
             self.hash_type = hash_type
             self._dir_only = dir_only
             self._suppress_hash = suppress_hash
+            self._verbose = verbose
             # print(self)
 
     def __str__(self):
@@ -72,7 +76,7 @@ class DirectoryTree:
 
 class _TreeDiagramGenerator:
     def __init__(self, root_dir, dir_only=False, hash_type='she256',
-                 suppress_hash=False):
+                 suppress_hash=False, verbose=False):
         """
         This method requires the filepath to the root directory where the
         _TreeGenerator will begin. This is x required parameter, but it
@@ -85,11 +89,14 @@ class _TreeDiagramGenerator:
             See file_hash in functions for details on supported algorithms.
         :param suppress_hash: bool, defaults to False, suppresses hash output in the
             directory tree output
+        :param verbose: bool, defaults to False, allows extra messages to appear as the
+            program performs its work
         """
         self._root_dir = pathlib.Path(root_dir)
         self._dir_only = dir_only
         self._hash_type = hash_type
         self._suppress_hash = suppress_hash
+        self._verbose = verbose
         self._tree = []
         # print(self)
 
@@ -97,6 +104,7 @@ class _TreeDiagramGenerator:
         s = (f"_TreeDiagramGenerator:\n"
              f"_root_dir: {self._root_dir}. _dir_only: {self._dir_only}.\n"
              f"_hash_type: {self._hash_type}. _suppress_hash: {self._suppress_hash}\n"
+             f"_verbose: {self._verbose}.\n"
              f"_tree: {self._tree}\n"
              f"End of TreeDiagramGenerator")
         return s
@@ -173,6 +181,8 @@ class _TreeDiagramGenerator:
             it to its parent directory
         :return: None, all action takes place internally
         """
+        if self._verbose:
+            print(f"_TreeDiagramGenerator._add_directory: Working on {directory}.")
         self._tree.append(f"{prefix}{connector} {directory.name}{os.sep}")
         if idx != count - 1:
             prefix += PIPE_PREFIX
@@ -192,6 +202,8 @@ class _TreeDiagramGenerator:
         :param hash_value: str, hash value for the file, defaults to None
         :return: None, all action takes place internally
         """
+        if self._verbose:
+            print(F"_TreeDiagramGenerator._add_file: Working on file, {file_entry}.")
         if hash_value:
             self._tree.append(f"{prefix}{connector} {file_entry.name}\t{hash_value}")
         else:

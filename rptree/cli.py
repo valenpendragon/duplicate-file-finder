@@ -14,7 +14,7 @@ def parse_cmd_line_arguments():
         epilog="RP Tree Help"
     )
     parser.version = f"RP Tree v{__version__}"
-    parser.add_argument("-v", "--version",
+    parser.add_argument("--version",
                         action="version")
     parser.add_argument(
         "root_dir",
@@ -35,13 +35,24 @@ def parse_cmd_line_arguments():
         action="store",
         default='sha256',
         choices=['sha224', 'sha256', 'sha384', 'sha512',
-                 'sha3_224', 'sha3_256', 'sha3_384', 'sha3_512']
+                 'sha3_224', 'sha3_256', 'sha3_384', 'sha3_512'],
+        help="Determines which safe SHA algorithm to use. Defaults to sha256."
     )
     parser.add_argument(
         "-s",
         "--suppress-hash",
         action="store_true",
-        default=False
+        default=False,
+        help="Controls display of file hashes, but does not suppress the performance"
+             "of hash algorithm on files. Defaults is False, displaying hash results."
+    )
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        action="store_true",
+        default=False,
+        help="Controls display of file and directory being examined. Defaults to False, "
+             "suppressing such output."
     )
     return parser.parse_args()
 
@@ -56,5 +67,5 @@ def main():
         sys.exit()
     # print(f"rptree cli: args: {args}")
     tree = DirectoryTree(root_dir, dir_only=args.dir_only, hash_type=args.hash_type,
-                         suppress_hash=args.suppress_hash)
+                         suppress_hash=args.suppress_hash, verbose=args.verbose)
     tree.generate()
