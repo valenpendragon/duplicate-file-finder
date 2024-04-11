@@ -54,6 +54,22 @@ def parse_cmd_line_arguments():
         help="Controls display of file and directory being examined. Defaults to False, "
              "suppressing such output."
     )
+    parser.add_argument(
+        "-o",
+        "--output-file",
+        action="store",
+        default=None,
+        help="Writes output of directory tree to a file."
+    )
+    parser.add_argument(
+        "-f",
+        "--file-type",
+        action="store",
+        default="txt",
+        choices=["txt", 'md'],
+        help="Determines type of output displays or written to screen. "
+             "Only supports txt and md currently."
+    )
     return parser.parse_args()
 
 
@@ -66,6 +82,11 @@ def main():
         print(error_msg)
         sys.exit()
     # print(f"rptree cli: args: {args}")
-    tree = DirectoryTree(root_dir, dir_only=args.dir_only, hash_type=args.hash_type,
-                         suppress_hash=args.suppress_hash, verbose=args.verbose)
+    tree = DirectoryTree(root_dir,
+                         dir_only=args.dir_only,
+                         hash_type=args.hash_type,
+                         suppress_hash=args.suppress_hash,
+                         verbose=args.verbose,
+                         output_file=args.output_file,
+                         file_type=args.file_type)
     tree.generate()

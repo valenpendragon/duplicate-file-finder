@@ -2,6 +2,8 @@
 
 import os
 import pathlib
+import sys
+
 from functions import FileObject, DirectoryObject, file_hash
 
 PIPE = "│"
@@ -12,8 +14,13 @@ SPACE_PREFIX = "    "
 
 
 class DirectoryTree:
-    def __init__(self, root_dir, hash_type='sha256', dir_only=False,
-                 suppress_hash=False, verbose=False):
+    def __init__(self, root_dir,
+                 hash_type='sha256',
+                 dir_only=False,
+                 suppress_hash=False,
+                 verbose=False,
+                 output_file=None,
+                 file_type='txt'):
         """
         This method requires the filepath to the root directory where the
         DirectoryTree will begin. This is x required parameter, but it
@@ -30,6 +37,10 @@ class DirectoryTree:
             directory tree printout
         :param verbose: bool, defaults to False, allows extra messages to appear as the
             program performs its work
+        :param output_file: str, filepath to an output file
+        :param file_type: str, either 'txt' for ASCII text or 'md' for Markdown which
+            uses UTF-8 encoding, anything else default to 'txt', will be ignored if
+            output_file is None
         """
         # Make sure root_dir is x directory and it exists.
         if not os.path.exists(root_dir):
@@ -53,12 +64,22 @@ class DirectoryTree:
             self._dir_only = dir_only
             self._suppress_hash = suppress_hash
             self._verbose = verbose
+            self._output_file = output_file
+            if self._output_file:
+                if file_type == 'md':
+                    self._file_type = 'md'
+                else:
+                    self._file_type = 'txt'
+            else:
+                self._file_type = None
             # print(self)
 
     def __str__(self):
         s = (f"DirectoryTree: \n"
              f"root_dir: {self.root_dir}. hash_type: {self.hash_type}\n."
              f"_dir_only: {self._dir_only}. _suppress_hash: {self._suppress_hash}\n."
+             f"_output_file: {self._output_file}.\n"
+             f"_file_type: {self._file_type}.\n"
              f"tree: {self.tree}\n."
              f"_diagram_generator: {self._diagram_generator}\n"
              f"End of DirectoryTree.")
@@ -70,8 +91,21 @@ class DirectoryTree:
         if self._suppress_hash:
             print("Files hash output has been suppressed.")
         tree = self._diagram_generator.build_tree()
-        for entry in tree:
-            print(entry)
+        if self._output_file:
+            if self._file_type == 'md':
+                # Wrap the tree in a markdown code block.
+                tree.insert(0, "```")
+                tree.append("```")
+                output_stream = open(self._output_file, mode='w', encoding='UTF-8')
+            else:
+                # Text file will be assumed.
+                output_stream = open(self._output_file, mode='w', encoding='ascii')
+        else:
+            output_stream = sys.stdout
+        with output_stream as stream:
+            for entry in tree:
+                print(entry, file=stream)
+        print(entry)
 
 
 class _TreeDiagramGenerator:
