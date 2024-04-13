@@ -24,12 +24,6 @@ def parse_cmd_line_arguments():
         help="Create a full directory tree at ROOT_DIR."
     )
     parser.add_argument(
-        "-d",
-        "--dir_only",
-        action="store_true",
-        help="Generator directory-only tree."
-    )
-    parser.add_argument(
         "-t",
         "--hash-type",
         action="store",
@@ -37,14 +31,6 @@ def parse_cmd_line_arguments():
         choices=['sha224', 'sha256', 'sha384', 'sha512',
                  'sha3_224', 'sha3_256', 'sha3_384', 'sha3_512'],
         help="Determines which safe SHA algorithm to use. Defaults to sha256."
-    )
-    parser.add_argument(
-        "-s",
-        "--suppress-hash",
-        action="store_true",
-        default=False,
-        help="Controls display of file hashes, but does not suppress the performance"
-             "of hash algorithm on files. Defaults is False, displaying hash results."
     )
     parser.add_argument(
         "-v",
@@ -69,6 +55,29 @@ def parse_cmd_line_arguments():
         choices=["txt", 'md'],
         help="Determines type of output displays or written to screen. "
              "Only supports txt and md currently."
+    )
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument(
+        "-l",
+        "--list-duplicates",
+        action="store_true",
+        default=False,
+        help="Finds file duplicates and lists them by filename "
+             "with full directory info."
+    )
+    group.add_argument(
+        "-s",
+        "--suppress-hash",
+        action="store_true",
+        default=False,
+        help="Controls display of file hashes, but does not suppress the performance"
+             "of hash algorithm on files. Defaults is False, displaying hash results."
+    )
+    group.add_argument(
+        "-d",
+        "--dir_only",
+        action="store_true",
+        help="Generator directory-only tree."
     )
     return parser.parse_args()
 

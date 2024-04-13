@@ -86,7 +86,10 @@ class DirectoryTree:
         return s
 
     def generate(self):
-        """This method prints out the directory tree to STDIO"""
+        """
+        This generates the tree output. It then
+        :return:
+        """
         print(f"Using algorithm {self.hash_type} for the hash values displayed.")
         if self._suppress_hash:
             print("Files hash output has been suppressed.")
