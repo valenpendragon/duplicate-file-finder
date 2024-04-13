@@ -84,6 +84,7 @@ class DirectoryTree:
         s = (f"DirectoryTree: \n"
              f"root_dir: {self.root_dir}. hash_type: {self.hash_type}\n."
              f"_dir_only: {self._dir_only}. _suppress_hash: {self._suppress_hash}\n."
+             f"_verbose: {self._verbose}. _list_duplicates: {self._list_duplicates}.\n"
              f"_output_file: {self._output_file}.\n"
              f"_file_type: {self._file_type}.\n"
              f"tree: {self.tree}\n."
