@@ -20,7 +20,8 @@ class DirectoryTree:
                  suppress_hash=False,
                  verbose=False,
                  output_file=None,
-                 file_type='txt'):
+                 file_type='txt',
+                 list_duplicates=False):
         """
         This method requires the filepath to the root directory where the
         DirectoryTree will begin. This is x required parameter, but it
@@ -41,6 +42,8 @@ class DirectoryTree:
         :param file_type: str, either 'txt' for ASCII text or 'md' for Markdown which
             uses UTF-8 encoding, anything else default to 'txt', will be ignored if
             output_file is None
+        :param list_duplicates: bool, defaults to False, determines if this program attempt
+            to find duplicate files in the tree after it has traversed it.
         """
         # Make sure root_dir is x directory and it exists.
         if not os.path.exists(root_dir):
@@ -65,13 +68,16 @@ class DirectoryTree:
             self._suppress_hash = suppress_hash
             self._verbose = verbose
             self._output_file = output_file
+            self._list_duplicates = list_duplicates
             if self._output_file:
                 if file_type == 'md':
                     self._file_type = 'md'
                 else:
                     self._file_type = 'txt'
+                self.output_stream = open(self._output_file, mode='w', encoding='UTF-8')
             else:
                 self._file_type = None
+                self.output_stream = sys.stdout
             print(self)
 
     def __str__(self):
@@ -87,26 +93,23 @@ class DirectoryTree:
 
     def generate(self):
         """
-        This generates the tree output. It then
+        This method generates the tree from _TreeDiagramGenerator.
         :return:
         """
         print(f"Using algorithm {self.hash_type} for the hash values displayed.")
         if self._suppress_hash:
             print("Files hash output has been suppressed.")
-        tree = self._diagram_generator.build_tree()
-        if self._output_file:
-            if self._file_type == 'md':
-                # Wrap the tree in a markdown code block.
-                tree.insert(0, "```")
-                tree.append("```")
-                output_stream = open(self._output_file, mode='w', encoding='UTF-8')
-            else:
-                # Text file will be assumed. No wrapper is required.
-                output_stream = open(self._output_file, mode='w', encoding='UTF-8')
-        else:
-            output_stream = sys.stdout
-        with output_stream as stream:
-            for entry in tree:
+        self.tree = self._diagram_generator.build_tree()
+
+    def print_tree(self):
+        """This method prints out the tree to either a file or
+        to stdout."""
+        if self._file_type == 'md':
+            # Wrap the tree in a markdown code block.
+            self.tree.insert(0, "```")
+            self.tree.append("```")
+        with self.output_stream as stream:
+            for entry in self.tree:
                 print(entry, file=stream)
 
 

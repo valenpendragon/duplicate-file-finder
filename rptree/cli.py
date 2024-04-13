@@ -97,5 +97,7 @@ def main():
                          suppress_hash=args.suppress_hash,
                          verbose=args.verbose,
                          output_file=args.output_file,
-                         file_type=args.file_type)
+                         file_type=args.file_type,
+                         list_duplicates=args.list_duplicates)
     tree.generate()
+    tree.print_tree()

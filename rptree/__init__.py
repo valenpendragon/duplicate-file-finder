@@ -1,3 +1,3 @@
 """Top level package for RP Tree package."""
 
-__version__ = '0.10.0'
+__version__ = '0.10.2'
