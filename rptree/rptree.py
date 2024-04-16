@@ -3,6 +3,7 @@
 import os
 import pathlib
 import sys
+import copy
 from collections import namedtuple
 
 from functions import FileObject, DirectoryObject, file_hash
@@ -133,7 +134,6 @@ class DirectoryTree:
         dir_end = False            # Flag to set when a directory end is reached.
         previous_path.append(str(self.root_dir))
         for item in self.tree:
-            print(f"DirectoryTree.find_duplicates: item: {item}. previous_path: {previous_path}")
             if self.tree.index(item) == 0:
                 # Skip the root directory.
                 continue
@@ -172,30 +172,41 @@ class DirectoryTree:
                     hash=hash_val,
                     hash_type=self.hash_type
                 )
-                print(f"DirectoryTree.find_duplicates: f: {f}.")
                 files_with_full_data.append(f)
                 if dir_end:
                     # Remove the last directory added to it.
                     if len(previous_path) != 0:
                         previous_path.pop()
-            print(f"DirectoryTree.find_duplicates: previous_path: {previous_path}.")
-        temp_list = files_with_full_data
-        for idx1, f1 in enumerate(files_with_full_data):
+        temp_list = copy.deepcopy(files_with_full_data)
+        for f1 in files_with_full_data:
             # Remove the redundant item.
-            temp_list.pop(idx1)
+            print(f"DirectoryTree.find_duplicates: f1: {f1}")
+            if f1 is None:
+                continue
             duplicates = []
-            for idx2, f2 in enumerate(temp_list):
+            for f2 in temp_list:
+                print(f"DirectoryTree.find_duplicates: f2: {f2}")
+                if f2 is None:
+                    continue
+
+                if f1 == f2:
+                    temp_list[temp_list.index(f2)] = None
+                    print(f"DirectoryTree.find_duplicates: Removed f2 {f2} from temp_list "
+                          f"because it is a copy of f1 {f1}.")
+                    continue
+
                 if f1.hash == f2.hash:
-                    dupe = FileObject(
-                        name=f2.name,
-                        parent=f2.parent,
-                        hash=f2.hash,
-                        hash_type=self.hash_type
-                    )
-                    temp_list.pop(idx2)
+                    dupe = temp_list[temp_list.index(f2)]
+                    temp_list[temp_list.index(f2)] = None
+                    files_with_full_data[files_with_full_data.index(f2)] = None
+                    print(f"DirectoryTree.find_duplicates: Removed f2 {f2} from both lists "
+                          f"after determining that f2 has the same hash result as f1 {f1}.")
                     duplicates.append(dupe)
                     print(f"DirectoryTree.find_duplicates: dupe: {dupe}.")
                     print(f"DirectoryTree.find_duplicates: duplicates: {duplicates}.")
+                    print(f"DirectoryTree.find_duplicates: temp_list: {temp_list}.")
+                    print(f"DirectoryTree.find_duplicates: files_with_full_data:"
+                          f" {files_with_full_data}")
             if duplicates != []:
                 duplicate_files.append((f1, duplicates))
                 print(f"DirectoryTree.find_duplicates: duplicates is not empty.")
