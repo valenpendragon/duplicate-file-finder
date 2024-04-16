@@ -180,36 +180,24 @@ class DirectoryTree:
         temp_list = copy.deepcopy(files_with_full_data)
         for f1 in files_with_full_data:
             # Remove the redundant item.
-            print(f"DirectoryTree.find_duplicates: f1: {f1}")
             if f1 is None:
                 continue
             duplicates = []
             for f2 in temp_list:
-                print(f"DirectoryTree.find_duplicates: f2: {f2}")
                 if f2 is None:
                     continue
 
                 if f1 == f2:
                     temp_list[temp_list.index(f2)] = None
-                    print(f"DirectoryTree.find_duplicates: Removed f2 {f2} from temp_list "
-                          f"because it is a copy of f1 {f1}.")
                     continue
 
                 if f1.hash == f2.hash:
                     dupe = temp_list[temp_list.index(f2)]
                     temp_list[temp_list.index(f2)] = None
                     files_with_full_data[files_with_full_data.index(f2)] = None
-                    print(f"DirectoryTree.find_duplicates: Removed f2 {f2} from both lists "
-                          f"after determining that f2 has the same hash result as f1 {f1}.")
                     duplicates.append(dupe)
-                    print(f"DirectoryTree.find_duplicates: dupe: {dupe}.")
-                    print(f"DirectoryTree.find_duplicates: duplicates: {duplicates}.")
-                    print(f"DirectoryTree.find_duplicates: temp_list: {temp_list}.")
-                    print(f"DirectoryTree.find_duplicates: files_with_full_data:"
-                          f" {files_with_full_data}")
             if duplicates != []:
                 duplicate_files.append((f1, duplicates))
-                print(f"DirectoryTree.find_duplicates: duplicates is not empty.")
         if duplicate_files == []:
             print("No duplicate files found.", file=self.output_stream)
         else:
