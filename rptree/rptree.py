@@ -3,6 +3,7 @@
 import os
 import pathlib
 import sys
+from collections import namedtuple
 
 from functions import FileObject, DirectoryObject, file_hash
 
@@ -109,9 +110,116 @@ class DirectoryTree:
             # Wrap the tree in a markdown code block.
             self.tree.insert(0, "```")
             self.tree.append("```")
-        with self.output_stream as stream:
+        if self.output_stream == sys.stdout:
             for entry in self.tree:
-                print(entry, file=stream)
+                print(entry)
+        else:
+            with self.output_stream as stream:
+                for entry in self.tree:
+                    print(entry, file=stream)
+
+
+
+    def find_duplicates(self):
+        """
+        This method searches self._tree to find files with matching
+        file_hashes and prints out a report detailing this information,
+        either to the output_file or stdout.
+        :return:
+        """
+        duplicate_files = []       # Stores the actual duplicate files.
+        previous_path = []         # Stores the path to a file.
+        files_with_full_data = []  # Stores the file list with hash and filepath.
+        dir_end = False            # Flag to set when a directory end is reached.
+        previous_path.append(str(self.root_dir))
+        for item in self.tree:
+            print(f"DirectoryTree.find_duplicates: item: {item}. previous_path: {previous_path}")
+            if self.tree.index(item) == 0:
+                # Skip the root directory.
+                continue
+            elif item == PIPE:
+                # Skip the first PIPE.
+                continue
+            # Now, we need to disassemble the item to get the
+            # path to the item.
+            depth_ctr = 0
+            while PIPE in item:
+                # Remove all PIPE_PREFIX strings and track the number.
+                depth_ctr += 1
+                item = item[len(PIPE_PREFIX):]
+            if TEE in item:
+                # Remove TEE since it is the middle of a directory, regardless of whether
+                # the item is really a file or a directory.
+                item = item.replace(f"{TEE} ", '')
+                dir_end = False
+            if ELBOW in item:
+                # This marks the end of the directory.
+                dir_end = True
+                item = item.replace(f"{ELBOW} ", '')
+            if item[-1] == os.sep or item[-2:] == os.sep:
+                # item is a directory name.
+                if depth_ctr < len(previous_path):
+                    # Remove one level due to an empty directory.
+                    previous_path.pop()
+                previous_path.append(item)
+                continue
+            else: # item is a file.
+                filename, hash_val = tuple(item.split('\t'))
+                dir_path = "".join(str(directory) for directory in previous_path)
+                f = FileObject(
+                    name=filename,
+                    parent=dir_path,
+                    hash=hash_val,
+                    hash_type=self.hash_type
+                )
+                print(f"DirectoryTree.find_duplicates: f: {f}.")
+                files_with_full_data.append(f)
+                if dir_end:
+                    # Remove the last directory added to it.
+                    if len(previous_path) != 0:
+                        previous_path.pop()
+            print(f"DirectoryTree.find_duplicates: previous_path: {previous_path}.")
+        temp_list = files_with_full_data
+        for idx1, f1 in enumerate(files_with_full_data):
+            # Remove the redundant item.
+            temp_list.pop(idx1)
+            duplicates = []
+            for idx2, f2 in enumerate(temp_list):
+                if f1.hash == f2.hash:
+                    dupe = FileObject(
+                        name=f2.name,
+                        parent=f2.parent,
+                        hash=f2.hash,
+                        hash_type=self.hash_type
+                    )
+                    temp_list.pop(idx2)
+                    duplicates.append(dupe)
+                    print(f"DirectoryTree.find_duplicates: dupe: {dupe}.")
+                    print(f"DirectoryTree.find_duplicates: duplicates: {duplicates}.")
+            if duplicates != []:
+                duplicate_files.append((f1, duplicates))
+                print(f"DirectoryTree.find_duplicates: duplicates is not empty.")
+        if duplicate_files == []:
+            print("No duplicate files found.", file=self.output_stream)
+        else:
+            if self.output_stream != sys.stdout:
+                with self.output_stream as stream:
+                    for f, l in duplicate_files:
+                        print(f"File, {f.name}, with hash, {f.hash}, in directory, {f.parent}, has the "
+                              f"following duplicates:", file=stream)
+                        for item in l:
+                            print(f"{item.parent}{os.sep}{item.name} with hash {item.hash}",
+                                  file=stream)
+                    print(f"Duplicate report completed.", file=stream)
+                print(f"Report completed and printed to {self._output_file}.")
+            else:
+                for f, l in duplicate_files:
+                    print(f"File, {f.name}, with hash, {f.hash}, in directory, {f.parent}, has the "
+                          f"following duplicates:")
+                    for item in l:
+                        print(f"{item.parent}{os.sep}{item.name} with hash {item.hash}")
+                    print(f"Duplicate report completed.")
+
 
 
 class _TreeDiagramGenerator:

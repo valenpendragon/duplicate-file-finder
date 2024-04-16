@@ -101,3 +101,6 @@ def main():
                          list_duplicates=args.list_duplicates)
     tree.generate()
     tree.print_tree()
+    if args.list_duplicates:
+        duplicate_files = tree.find_duplicates()
+
