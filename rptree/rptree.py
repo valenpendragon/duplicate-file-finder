@@ -365,6 +365,6 @@ class _TreeDiagramGenerator:
         if self._verbose:
             print(F"_TreeDiagramGenerator._add_file: Working on file, {file_entry}.")
         if hash_value:
-            self._tree.append(f"{prefix}{connector} {file_entry.name}\t{hash_value}")
+            self._tree.append(f"{prefix}{connector} {file_entry.name}\t\t{hash_value}")
         else:
             self._tree.append(f"{prefix}{connector} {file_entry.name}")
