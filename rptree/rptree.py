@@ -4,6 +4,8 @@ import os
 import pathlib
 import sys
 import copy
+from itertools import cycle
+from time import sleep
 from collections import namedtuple
 
 from functions import FileObject, DirectoryObject, file_hash
@@ -102,6 +104,7 @@ class DirectoryTree:
         print(f"Using algorithm {self.hash_type} for the hash values displayed.")
         if self._suppress_hash:
             print("Files hash output has been suppressed.")
+        print("Building directory tree.")
         self.tree = self._diagram_generator.build_tree()
 
     def print_tree(self):
@@ -111,15 +114,17 @@ class DirectoryTree:
             # Wrap the tree in a markdown code block.
             self.tree.insert(0, "```")
             self.tree.append("```")
+
         if self.output_stream == sys.stdout:
+            print("Printing the completed directory tree.")
             for entry in self.tree:
                 print(entry)
         else:
-            with self.output_stream as stream:
-                for entry in self.tree:
-                    print(entry, file=stream)
-
-
+            print(f"Printing the completed directory tree to {self._output_file}.")
+            for entry in self.tree:
+                print(entry, file=self.output_stream)
+            if not self._list_duplicates:
+                self.output_stream.close()
 
     def find_duplicates(self):
         """
@@ -202,14 +207,14 @@ class DirectoryTree:
             print("No duplicate files found.", file=self.output_stream)
         else:
             if self.output_stream != sys.stdout:
-                with self.output_stream as stream:
-                    for f, l in duplicate_files:
-                        print(f"File, {f.name}, with hash, {f.hash}, in directory, {f.parent}, has the "
-                              f"following duplicates:", file=stream)
-                        for item in l:
-                            print(f"{item.parent}{os.sep}{item.name} with hash {item.hash}",
-                                  file=stream)
-                    print(f"Duplicate report completed.", file=stream)
+                for f, l in duplicate_files:
+                    print(f"\n\nFile, {f.name}, with hash, {f.hash}, in directory, {f.parent}, has the "
+                          f"following duplicates:", file=self.output_stream)
+                    for item in l:
+                        print(f"{item.parent}{os.sep}{item.name} with hash {item.hash}",
+                              file=self.output_stream)
+                print(f"Duplicate report completed.", file=self.output_stream)
+                self.output_stream.close()
                 print(f"Report completed and printed to {self._output_file}.")
             else:
                 for f, l in duplicate_files:
@@ -218,7 +223,6 @@ class DirectoryTree:
                     for item in l:
                         print(f"{item.parent}{os.sep}{item.name} with hash {item.hash}")
                     print(f"Duplicate report completed.")
-
 
 
 class _TreeDiagramGenerator:
@@ -256,6 +260,12 @@ class _TreeDiagramGenerator:
              f"End of _TreeDiagramGenerator")
         return s
 
+    @staticmethod
+    def _spin_clock():
+        for frame in cycle(r'-\|/'):
+            print('\r', frame, sep='', end='', flush=True)
+            sleep(0.2)
+
     def build_tree(self):
         """
         This method builds the tree structure for x DirectoryTree, storing it
@@ -263,7 +273,9 @@ class _TreeDiagramGenerator:
         structure to make it available to other classes.
         :return: _tree, x nested list of nodes forming the directory tree.
         """
+        print(f"Added root directory, {self._root_dir}, to tree.")
         self._tree_head()
+        print(f"Recursing subdirectories collecting data:", flush=True)
         self._tree_body(self._root_dir)
         return self._tree
 
@@ -285,6 +297,7 @@ class _TreeDiagramGenerator:
         :param prefix: str, allows the addition of spacers to the program.
         :return: None
         """
+        print(f"Searching {directory}...", flush=True)
         entries = self._prepare_entries(directory)
         entries_count = len(entries)
         for idx, entry in enumerate(entries):
