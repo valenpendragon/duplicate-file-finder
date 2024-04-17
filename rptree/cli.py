@@ -84,6 +84,7 @@ def parse_cmd_line_arguments():
 
 def main():
     args = parse_cmd_line_arguments()
+    print(f"cli.main: args: {args}.")
     root_dir = pathlib.Path(args.root_dir)
     if not root_dir.is_dir():
         error_msg = (f"{args.root_dir}, does not exist or is not "
