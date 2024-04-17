@@ -169,7 +169,7 @@ class DirectoryTree:
                 previous_path.append(item)
                 continue
             else: # item is a file.
-                filename, hash_val = tuple(item.split('\t'))
+                filename, hash_val = tuple(item.split('\t\t'))
                 dir_path = "".join(str(directory) for directory in previous_path)
                 f = FileObject(
                     name=filename,
