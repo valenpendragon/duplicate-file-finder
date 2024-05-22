@@ -21,7 +21,10 @@ def parse_cmd_line_arguments():
         metavar="ROOT_DIR",
         nargs="?",
         default='.',
-        help="Create a full directory tree at ROOT_DIR."
+        help=f"Create a full directory tree at ROOT_DIR. Note: On "
+             f"Windows platforms, a path_to_dir ending in a forward "
+             f"slash may require a second forward slash to work "
+             f"properly."
     )
     parser.add_argument(
         "-t",
@@ -70,8 +73,8 @@ def parse_cmd_line_arguments():
         "--suppress-hash",
         action="store_true",
         default=False,
-        help="Controls display of file hashes, but does not suppress the performance"
-             "of hash algorithm on files. Defaults is False, displaying hash results."
+        help="Suppresses the performance of hash algorithm on files."
+             " Default is False: performing and displaying hash results."
     )
     group.add_argument(
         "-d",

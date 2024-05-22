@@ -363,7 +363,7 @@ class _TreeDiagramGenerator:
         :return: None, all action takes place internally
         """
         if self._verbose:
-            print(F"_TreeDiagramGenerator._add_file: Working on file, {file_entry}.")
+            print(f"_TreeDiagramGenerator._add_file: Working on file, {file_entry}.")
         if hash_value:
             self._tree.append(f"{prefix}{connector} {file_entry.name}\t\t{hash_value}")
         else:
